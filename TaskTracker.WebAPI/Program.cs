@@ -1,32 +1,21 @@
 using Microsoft.EntityFrameworkCore;
 using TaskTracker.Infrastructure.DatabaseContext;
 using TaskTracker.WebAPI.StartupExtensions;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+//Serilog
+builder.Host.UseSerilog((HostBuilderContext context,
+    IServiceProvider services,
+    LoggerConfiguration loggerConfiguration) =>
+{
+    loggerConfiguration
+    .ReadFrom.Configuration(context.Configuration) // Read configuration settings from built-in IConfiguration
+    .ReadFrom.Services(services); //read out current app's services and make them availabe to serilog 
 
-//builder.Services.AddControllers();
+});
 
-//builder.Services.AddDbContext<ApplicationDbContext>(options => { 
-//    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
-//});
-
-//// add swagger for API documentation
-//builder.Services.AddEndpointsApiExplorer();
-//// add swagger gen for generating swagger documentation
-//builder.Services.AddSwaggerGen(option => option.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "TaskTrackerApi.xml")));
-
-
-//builder.Services.AddCors(options =>
-//{
-//    options.AddDefaultPolicy(policyBuilder =>
-//    {
-//        policyBuilder.WithOrigins(builder.Configuration.GetSection("AllowedOrigins").Get<string[]>())
-//        .AllowAnyHeader()
-//        .AllowAnyMethod();   // Allow GET, POST, PUT, DELETE, etc.;
-//    });
-//});
 
 builder.Services.ConfigureServices(builder.Configuration);
 

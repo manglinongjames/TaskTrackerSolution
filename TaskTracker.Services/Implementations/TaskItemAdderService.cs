@@ -31,6 +31,7 @@ namespace TaskTracker.Services.Implementations
             // validate the taskItemAddRequest DTO
             ValidationHelper.ModelValidation(taskItemAddRequest);
             ValidationHelper.ValidateTaskItemStatus(taskItemAddRequest.Status);
+            ValidationHelper.ValidateTaskItemDueDate(taskItemAddRequest.DueDate);
             TaskItem taskItem = taskItemAddRequest.ToTaskItem();
 
             // generate a new Guid for the task item

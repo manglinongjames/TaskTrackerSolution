@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TaskTracker.Core.Entities;
-using TaskTracker.Core.Interfaces;
+﻿using TaskTracker.Core.Interfaces;
 using TaskTracker.Services.Helpers;
 using TaskTracker.Services.Interfaces;
 using TaskTracker.TaskTracker.Services.DTO.TaskItemDto;
@@ -33,9 +27,10 @@ namespace TaskTracker.Services.Implementations
             //validate the taskItemAddRequest DTO
             //ValidationHelper.ModelValidation(taskItemUpdateRequestDto);
             ValidationHelper.ValidateTaskItemStatus(taskItemUpdateRequestDto.Status);
+          
             if (string.IsNullOrWhiteSpace(taskItemUpdateRequestDto.Title) && taskItemUpdateRequestDto.Status?.ToLower() == "done")
             {
-                throw new InvalidOperationException("Unable to mark the task item to Done due to missing title.");
+                throw new InvalidOperationException("Unable to mark the task item to 'Done' due to missing title.");
             }
 
             var existingTaskItem = await _iTaskRepository.GetTaskByIdAsync(taskItemUpdateRequestDto.Id);
@@ -44,6 +39,8 @@ namespace TaskTracker.Services.Implementations
             {
                 throw new KeyNotFoundException($"Task item with id {taskItemUpdateRequestDto.Id} not found.");
             }
+
+            ValidationHelper.ValidateTaskITemStatusTransition(taskItemUpdateRequestDto.Status,existingTaskItem.Status);
 
             if (taskItemUpdateRequestDto.Status?.ToLower() == "done" && existingTaskItem?.Status?.ToLower() == "todo") {
                 throw new InvalidOperationException($"The task is currently '{existingTaskItem?.Status}' state and must be marked 'InProgress' first before it can be updated to 'Done'.");

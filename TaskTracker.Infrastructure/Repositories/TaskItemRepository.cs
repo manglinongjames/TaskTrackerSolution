@@ -35,7 +35,7 @@ namespace TaskTracker.Infrastructure.Repositories
 
         public async Task<TaskItem> UpdateTaskAsync(TaskItem task)
         {
-            _context.Entry(task).State = EntityState.Modified;
+            //_context.Entry(task).State = EntityState.Modified;
             // persist update in the database.
             await _context.SaveChangesAsync();
             return task;
