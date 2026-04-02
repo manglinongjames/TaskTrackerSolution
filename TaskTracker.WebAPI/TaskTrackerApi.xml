@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>TaskTracker.WebAPI</name>
+    </assembly>
+    <members>
+        <member name="M:TaskTracker.WebAPI.Controllers.TasksController.GetTasks">
+            <summary>
+            Returns a list of all tasks in the database. If no tasks exist, an empty collection is returned. The response is in JSON format due to the [ApiController] attribute, which automatically serializes the response to JSON.
+            </summary>
+            <returns>A collection of <see cref="T:TaskTracker.Core.Entities.TaskItem"/> objects representing all tasks. The collection is empty if no tasks
+            exist.</returns>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:TaskTracker.WebAPI.Controllers.TasksController.GetTask(System.Guid)" -->
+        <member name="M:TaskTracker.WebAPI.Controllers.TasksController.PutTask(System.Guid,TaskTracker.Core.Entities.TaskItem)">
+            <summary>
+            Route paramenter name and method paramenter name should be same, otherwise it will not bind the value from route to method parameter and you will get 400 bad request error
+            Use IActionResult as the return type of the method, which allows you to return different types of responses (e.g., 204 No Content, 404 Not Found, etc.) based on the outcome of the update operation.
+            </summary>
+            <param name="id"></param>
+            <param name="task"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>
