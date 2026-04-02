@@ -4,13 +4,6 @@
         <name>TaskTracker.WebAPI</name>
     </assembly>
     <members>
-        <member name="M:TaskTracker.WebAPI.Controllers.TasksController.GetTasks">
-            <summary>
-            Returns a list of all tasks in the database. If no tasks exist, an empty collection is returned. The response is in JSON format due to the [ApiController] attribute, which automatically serializes the response to JSON.
-            </summary>
-            <returns>A collection of <see cref="T:TaskTracker.Core.Entities.TaskItem"/> objects representing all tasks. The collection is empty if no tasks
-            exist.</returns>
-        </member>
         <!-- Badly formed XML comment ignored for member "M:TaskTracker.WebAPI.Controllers.TasksController.GetTask(System.Guid)" -->
         <member name="M:TaskTracker.WebAPI.Controllers.TasksController.PutTask(System.Guid,TaskTracker.Core.Entities.TaskItem)">
             <summary>

@@ -22,11 +22,13 @@
 
   <ItemGroup>
     <Folder Include="ClientApp\" />
+    <Folder Include="DTO\" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\TaskTracker.Core\TaskTracker.Core.csproj" />
     <ProjectReference Include="..\TaskTracker.Infrastructure\TaskTracker.Infrastructure.csproj" />
+    <ProjectReference Include="..\TaskTracker.Services\TaskTracker.Services.csproj" />
   </ItemGroup>
 
 </Project>

@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TaskTracker.Core.Entities;
 using TaskTracker.Infrastructure.DatabaseContext;
+using TaskTracker.Services.Interfaces;
+using TaskTracker.WebAPI.DTO.TaskItem;
 
 namespace TaskTracker.WebAPI.Controllers
 {
@@ -10,24 +12,19 @@ namespace TaskTracker.WebAPI.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        public TasksController(ApplicationDbContext context)
+        private readonly ITaskItemGetterService _iTaskItemGetterService;
+        public TasksController(ApplicationDbContext context, ITaskItemGetterService taskItemService)
         {
-            _context = context;
+            this._context = context;
+            this._iTaskItemGetterService = taskItemService;
         }
 
         // GET: api/Tasks
-        /// <summary>
-        /// Returns a list of all tasks in the database. If no tasks exist, an empty collection is returned. The response is in JSON format due to the [ApiController] attribute, which automatically serializes the response to JSON.
-        /// </summary>
-        /// <returns>A collection of <see cref="TaskItem"/> objects representing all tasks. The collection is empty if no tasks
-        /// exist.</returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TaskItem>>> GetTasks()
+        public async Task<ActionResult<IEnumerable<TaskItemResponse>>> GetTasks()
         {
-            
-            var tasks = await _context.TaskItem.ToListAsync();
-
-            return tasks;
+            var tasks = await _iTaskItemGetterService.GetAllTasksAsync();
+            return Ok(tasks);
         }
 
         // GET: api/Tasks/5
