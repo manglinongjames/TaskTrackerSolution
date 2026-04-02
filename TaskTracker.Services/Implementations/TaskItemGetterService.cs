@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 using TaskTracker.Core.Entities;
 using TaskTracker.Core.Interfaces;
 using TaskTracker.Services.Interfaces;
-using TaskTracker.WebAPI.DTO.TaskItem;
+using TaskTracker.TaskTracker.Services.DTO.TaskItemDto;
+using TaskTracker.WebAPI.DTO.TaskItemDto;
 
 namespace TaskTracker.Services.Implementations
 {
@@ -22,6 +23,17 @@ namespace TaskTracker.Services.Implementations
         {
             var tasks = await _ITaskRepository.GetAllTaskAsync();
             return tasks.Select(t => MapToResponse(t));
+        }
+
+        public async Task<TaskItemResponse?> GetTaskByIdAsync(Guid id)
+        {
+            var task = await _ITaskRepository.GetTaskByIdAsync(id);
+            if (task == null)
+            {
+                throw new KeyNotFoundException($"Task with ID {id} was not found.");
+            }
+
+            return task.ToTaskItemResponse();
         }
 
         // Private mapping helper

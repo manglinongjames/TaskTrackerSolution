@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TaskTracker.WebAPI.DTO.TaskItem
+namespace TaskTracker.WebAPI.DTO.TaskItemDto
 {
     public class TaskItemResponse
     {

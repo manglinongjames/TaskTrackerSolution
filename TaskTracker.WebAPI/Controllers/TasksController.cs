@@ -1,10 +1,12 @@
 ﻿
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using TaskTracker.Core.Entities;
 using TaskTracker.Infrastructure.DatabaseContext;
 using TaskTracker.Services.Interfaces;
-using TaskTracker.WebAPI.DTO.TaskItem;
+using TaskTracker.TaskTracker.Services.DTO.TaskItemDto;
+using TaskTracker.WebAPI.DTO.TaskItemDto;
 
 namespace TaskTracker.WebAPI.Controllers
 {
@@ -13,13 +15,27 @@ namespace TaskTracker.WebAPI.Controllers
         private readonly ApplicationDbContext _context;
 
         private readonly ITaskItemGetterService _iTaskItemGetterService;
-        public TasksController(ApplicationDbContext context, ITaskItemGetterService taskItemService)
+        private readonly ITaskItemAdderService _iTaskItemAdderRequest;
+        private readonly ITaskItemUpdaterService _iTaskItemUpdaterService;
+        private readonly ITaskItemDeleterService _iTaskItemDeleterService;
+        public TasksController(ApplicationDbContext context,
+            ITaskItemGetterService taskItemService,
+            ITaskItemAdderService iTaskItemAdderRequest,
+            ITaskItemUpdaterService taskItemUpdaterService,
+            ITaskItemDeleterService iTaskItemDeleterService)
         {
             this._context = context;
             this._iTaskItemGetterService = taskItemService;
+            this._iTaskItemAdderRequest = iTaskItemAdderRequest;
+            this._iTaskItemUpdaterService = taskItemUpdaterService;
+            this._iTaskItemDeleterService = iTaskItemDeleterService;
         }
 
         // GET: api/Tasks
+        /// <summary>
+        /// This endpoint retrieves a list of all task items in the system, including their details such as title, description, status, and due date.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TaskItemResponse>>> GetTasks()
         {
@@ -29,144 +45,95 @@ namespace TaskTracker.WebAPI.Controllers
 
         // GET: api/Tasks/5
         /// <summary>
-        /// returns a 404 Not Found response if the task with the specified id is not found in the database, along with a custom error message in the response body. 
-        /// If the task is found, it returns the task object in JSON format.
-        /// Use ActionResult<TaskItem> to return TaskItem object if found, otherwise return a ProblemDetails response with a 404 Not Found status code and a custom error message in the response body.
+        /// This endpoint retrieves a specific task item by its unique identifier (ID). It returns the details of the task, including its title, description, status, and due date. If the task with the specified ID does not exist, it returns a 404 Not Found response.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<TaskItem>> GetTask(Guid id)
         {
-            //var task = await _context.TaskItem.FindAsync(id);
-            var task = await _context.TaskItem.FirstOrDefaultAsync(a => a.Id == id);
-
-            if (task == null)
+            try
             {
-                //Response.StatusCode = StatusCodes.Status404NotFound;
-                //return NotFound();
-
-                /// return a ProblemDetails response with a 404 Not Found status code and a custom error message in the response body.\
-                /// returns a json result
-                return Problem(statusCode: StatusCodes.Status404NotFound, detail: $"Task with id {id} not found.", title: "Task Search");
+                var task = await _iTaskItemGetterService.GetTaskByIdAsync(id);
+                return Ok(task);
             }
-
-            // returns json format, because of [ApiController] attribute, which automatically serializes the response to JSON
-            return task;
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
         }
 
         // PUT: api/Tasks/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         /// <summary>
-        /// Route paramenter name and method paramenter name should be same, otherwise it will not bind the value from route to method parameter and you will get 400 bad request error
-        /// Use IActionResult as the return type of the method, which allows you to return different types of responses (e.g., 204 No Content, 404 Not Found, etc.) based on the outcome of the update operation.
+        /// This endpoint updates an existing task item identified by its unique identifier (ID). It accepts a request body containing the updated details of the task, such as title, description, status, and due date. If the task with the specified ID does not exist, it returns a 404 Not Found response. If the update is successful, it returns the updated task details. If there are validation errors or other issues with the request, it returns a 400 Bad Request response with an appropriate error message.
         /// </summary>
         /// <param name="id"></param>
         /// <param name="task"></param>
         /// <returns></returns>
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTask(Guid id, TaskItem task)
+        public async Task<IActionResult> PutTask(Guid id, TaskItemUpdateRequestDto task)
         {
             if (id != task.Id)
             {
-                return BadRequest();
+                return BadRequest("Id mismatch");
             }
-
-            /// update the object and set the state into modified.
-            /// however, this approach will update all the properties of the entity, even if only one property is changed.
-            _context.Entry(task).State = EntityState.Modified;
-
-            // to upate entity using specific values
-            //var existingTask = await _context.TaskItem.FindAsync(id);
-
-            //if (existingTask == null) {
-            //    return NotFound(); //http 404
-            //}
-
-            //existingTask.Status = task.Status;
-
-
-
 
             try
             {
-                // persist update in the database.
-                await _context.SaveChangesAsync();
+                var taskItemResponse = await _iTaskItemUpdaterService.UpdateTaskAsync(task);
+                return Ok(taskItemResponse);
             }
-            // if another user has updated the same entity in the database after we fetched it and before we tried to update it, then a DbUpdateConcurrencyException will be thrown.
-            catch (DbUpdateConcurrencyException)
+            catch (KeyNotFoundException)
             {
-                if (!TaskExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    // rethrow the exception to be handled by the global exception handler, which will return a 500 Internal Server Error response to the client.
-                    throw;
-                }
+                return NotFound();
             }
-
-            /// return 204 No Content status code, which indicates that the request was successful but there is no content to return in the response body.
-            return NoContent();
+            catch (InvalidOperationException ex) {
+                return BadRequest(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         // POST: api/Tasks
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// This endpoint creates a new task item in the system. It accepts a request body containing the details of the task to be created, such as title, description, status, and due date. If the creation is successful, it returns a 201 Created response with the details of the newly created task, including its unique identifier (ID). If there are validation errors or other issues with the request, it returns a 400 Bad Request response with an appropriate error message.
+        /// </summary>
+        /// <param name="task"></param>
+        /// <returns></returns>
         [HttpPost]
-        public async Task<ActionResult<TaskItem>> PostTask(TaskItem task)
+        public async Task<ActionResult<TaskItemResponse>> PostTask(TaskItemAddRequestDto task)
         {
-            // no need for this check, because of [ApiController] attribute, which automatically validates the model and returns a 400 Bad Request response if the model is invalid.
-            //if (ModelState.IsValid == false)
-            //{
-            //    return BadRequest(ModelState);
-            //}
-
-            // check if the TaskItem DbSet is null, which indicates a problem with the database context configuration.
-            // If it is null, return a ProblemDetails response with a 500 Internal Server Error status code
-            // and a custom error message in the response body.
-            if (_context.TaskItem == null)
+            try
             {
-                return Problem("Entity set 'ApplicationDbContext.TaskItem' is null.");
+                var taskItemResponse = await _iTaskItemAdderRequest.CreateTaskAsync(task);
+                return CreatedAtAction("GetTask", new { id = taskItemResponse.Id }, taskItemResponse);
             }
-
-            // Ensure the server generates the Id regardless of client input
-            task.Id = Guid.NewGuid();
-
-            // Add the new task to the database context and save changes
-            _context.TaskItem.Add(task);
-
-            // Save the new task to the database. This will generate the Id for the task and persist it in the database.
-            await _context.SaveChangesAsync();
-
-            // Automatically return a 201 Created response with the location of the newly created task and the task object in the response body.
-            // https://localhost:7221/api/Tasks/9801a9c5-0098-4690-9568-6589e8e1b665
-            return CreatedAtAction("GetTask", new { id = task.Id }, task);
+            catch(ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         // DELETE: api/Tasks/5
+        /// <summary>
+        /// This endpoint deletes an existing task item identified by its unique identifier (ID). If the task with the specified ID does not exist, it returns a 404 Not Found response. If the deletion is successful, it returns a 204 No Content response, indicating that the task has been successfully deleted from the system.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTask(Guid id)
         {
-            var task = await _context.TaskItem.FindAsync(id);
-            if (task == null)
+            var task = await _iTaskItemDeleterService.DeleteTaskAsync(id);
+            if (!task)
             {
                 return NotFound(); // http 404
             }
-
-            // mark the entity for deletion.
-            _context.TaskItem.Remove(task);
-
-            // persist the deletion in the database.
-            await _context.SaveChangesAsync();
-
-            // return 204 No Content status code, which indicates that the request was successful but there is no content to return in the response body.
+            // If the deletion is successful, return a 204 No Content response
             return NoContent();
         }
 
-        private bool TaskExists(Guid id)
-        {
-            return _context.TaskItem.Any(e => e.Id == id);
-        }
     }
 }

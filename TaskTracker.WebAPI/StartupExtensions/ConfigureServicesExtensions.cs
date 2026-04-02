@@ -34,8 +34,11 @@ namespace TaskTracker.WebAPI.StartupExtensions
             });
 
             //add services to IOC container
-            services.AddScoped<ITaskItemService, TaskItemService>();
+            //services.AddScoped<ITaskItemService, TaskItemService>();
             services.AddScoped<ITaskItemGetterService, TaskItemGetterService>();
+            services.AddScoped<ITaskItemAdderService, TaskItemAdderService>();
+            services.AddScoped<ITaskItemUpdaterService, TaskItemUpdaterService>();
+            services.AddScoped<ITaskItemDeleterService, TaskItemDeleterService>();
             services.AddScoped<ITaskRepository, TaskItemRepository>();
             return services;
         }

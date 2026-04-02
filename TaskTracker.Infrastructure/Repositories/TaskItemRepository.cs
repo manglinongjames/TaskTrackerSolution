@@ -22,14 +22,39 @@ namespace TaskTracker.Infrastructure.Repositories
             this._context = context;
             this._logger = logger;
         }
-        public Task AddTaskAsync(TaskItem task)
+        public async Task<TaskItem> AddTaskAsync(TaskItem task)
         {
-            throw new NotImplementedException();
+            //// Add the new task to the database context and save changes
+            _context.TaskItem.Add(task);
+
+            //// Save the new task to the database. This will generate the Id for the task and persist it in the database.
+            await _context.SaveChangesAsync();
+
+            return task;
         }
 
-        public Task DeleteTaskAsync(Guid id)
+        public async Task<TaskItem> UpdateTaskAsync(TaskItem task)
         {
-            throw new NotImplementedException();
+            _context.Entry(task).State = EntityState.Modified;
+            // persist update in the database.
+            await _context.SaveChangesAsync();
+            return task;
+        }
+
+        public async Task<bool> DeleteTaskAsync(Guid id)
+        {
+            var task = await _context.TaskItem.FindAsync(id);
+            if (task == null)
+            {
+                return false;
+            }
+
+            // mark the entity for deletion.
+            _context.TaskItem.Remove(task);
+
+            // persist the deletion in the database.
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         public async Task<IEnumerable<TaskItem>> GetAllTaskAsync()
@@ -43,9 +68,8 @@ namespace TaskTracker.Infrastructure.Repositories
             return await _context.TaskItem.FirstOrDefaultAsync(t => t.Id == id);
         }
 
-        public Task UpdateTaskAsync(TaskItem task)
-        {
-            throw new NotImplementedException();
-        }
+
+
+ 
     }
 }

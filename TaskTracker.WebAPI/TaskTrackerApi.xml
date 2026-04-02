@@ -4,14 +4,39 @@
         <name>TaskTracker.WebAPI</name>
     </assembly>
     <members>
-        <!-- Badly formed XML comment ignored for member "M:TaskTracker.WebAPI.Controllers.TasksController.GetTask(System.Guid)" -->
-        <member name="M:TaskTracker.WebAPI.Controllers.TasksController.PutTask(System.Guid,TaskTracker.Core.Entities.TaskItem)">
+        <member name="M:TaskTracker.WebAPI.Controllers.TasksController.GetTasks">
             <summary>
-            Route paramenter name and method paramenter name should be same, otherwise it will not bind the value from route to method parameter and you will get 400 bad request error
-            Use IActionResult as the return type of the method, which allows you to return different types of responses (e.g., 204 No Content, 404 Not Found, etc.) based on the outcome of the update operation.
+            This endpoint retrieves a list of all task items in the system, including their details such as title, description, status, and due date.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TaskTracker.WebAPI.Controllers.TasksController.GetTask(System.Guid)">
+            <summary>
+            This endpoint retrieves a specific task item by its unique identifier (ID). It returns the details of the task, including its title, description, status, and due date. If the task with the specified ID does not exist, it returns a 404 Not Found response.
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TaskTracker.WebAPI.Controllers.TasksController.PutTask(System.Guid,TaskTracker.TaskTracker.Services.DTO.TaskItemDto.TaskItemUpdateRequestDto)">
+            <summary>
+            This endpoint updates an existing task item identified by its unique identifier (ID). It accepts a request body containing the updated details of the task, such as title, description, status, and due date. If the task with the specified ID does not exist, it returns a 404 Not Found response. If the update is successful, it returns the updated task details. If there are validation errors or other issues with the request, it returns a 400 Bad Request response with an appropriate error message.
             </summary>
             <param name="id"></param>
             <param name="task"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TaskTracker.WebAPI.Controllers.TasksController.PostTask(TaskTracker.TaskTracker.Services.DTO.TaskItemDto.TaskItemAddRequestDto)">
+            <summary>
+            This endpoint creates a new task item in the system. It accepts a request body containing the details of the task to be created, such as title, description, status, and due date. If the creation is successful, it returns a 201 Created response with the details of the newly created task, including its unique identifier (ID). If there are validation errors or other issues with the request, it returns a 400 Bad Request response with an appropriate error message.
+            </summary>
+            <param name="task"></param>
+            <returns></returns>
+        </member>
+        <member name="M:TaskTracker.WebAPI.Controllers.TasksController.DeleteTask(System.Guid)">
+            <summary>
+            This endpoint deletes an existing task item identified by its unique identifier (ID). If the task with the specified ID does not exist, it returns a 404 Not Found response. If the deletion is successful, it returns a 204 No Content response, indicating that the task has been successfully deleted from the system.
+            </summary>
+            <param name="id"></param>
             <returns></returns>
         </member>
     </members>

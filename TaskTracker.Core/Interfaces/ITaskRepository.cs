@@ -27,21 +27,21 @@ namespace TaskTracker.Core.Interfaces
         /// </summary>
         /// <param name="task"></param>
         /// <returns></returns>
-        Task AddTaskAsync(TaskItem task);
+        Task<TaskItem> AddTaskAsync(TaskItem task);
 
         /// <summary>
         /// Update an existing task item in the repository
         /// </summary>
         /// <param name="task"></param>
         /// <returns></returns>
-        Task UpdateTaskAsync(TaskItem task);
+        Task<TaskItem> UpdateTaskAsync(TaskItem task);
 
         /// <summary>
         /// Delete a task item by ID from the repository
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        Task DeleteTaskAsync(Guid id);
+        Task<bool> DeleteTaskAsync(Guid id);
 
         // Example domain-specific method
         //Task<IEnumerable<TaskItem>> GetTasksByStatusAsync(string status);

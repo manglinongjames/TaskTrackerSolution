@@ -22,7 +22,6 @@
 
   <ItemGroup>
     <Folder Include="ClientApp\" />
-    <Folder Include="DTO\" />
   </ItemGroup>
 
   <ItemGroup>
