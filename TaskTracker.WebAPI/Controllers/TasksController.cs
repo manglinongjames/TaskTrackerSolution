@@ -1,9 +1,8 @@
 ﻿
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
+
 using TaskTracker.Core.Entities;
-using TaskTracker.Infrastructure.DatabaseContext;
+
 using TaskTracker.Services.Interfaces;
 using TaskTracker.TaskTracker.Services.DTO.TaskItemDto;
 using TaskTracker.WebAPI.DTO.TaskItemDto;
@@ -12,19 +11,18 @@ namespace TaskTracker.WebAPI.Controllers
 {
     public class TasksController : CustomControllerBase
     {
-        private readonly ApplicationDbContext _context;
+
 
         private readonly ITaskItemGetterService _iTaskItemGetterService;
         private readonly ITaskItemAdderService _iTaskItemAdderRequest;
         private readonly ITaskItemUpdaterService _iTaskItemUpdaterService;
         private readonly ITaskItemDeleterService _iTaskItemDeleterService;
-        public TasksController(ApplicationDbContext context,
+        public TasksController(
             ITaskItemGetterService taskItemService,
             ITaskItemAdderService iTaskItemAdderRequest,
             ITaskItemUpdaterService taskItemUpdaterService,
             ITaskItemDeleterService iTaskItemDeleterService)
         {
-            this._context = context;
             this._iTaskItemGetterService = taskItemService;
             this._iTaskItemAdderRequest = iTaskItemAdderRequest;
             this._iTaskItemUpdaterService = taskItemUpdaterService;

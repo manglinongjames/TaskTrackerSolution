@@ -110,7 +110,7 @@ Services → Depends on Core
 
 WebAPI → Depends on Services
 
-Tests → Tests all layers
+Tests → Tests TaskTracker.Services layer
 
 
 

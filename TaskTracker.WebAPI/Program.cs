@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using TaskTracker.Infrastructure.DatabaseContext;
 using TaskTracker.WebAPI.StartupExtensions;
 using Serilog;
 
